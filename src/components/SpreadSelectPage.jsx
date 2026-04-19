@@ -3,6 +3,21 @@ import { spreads } from '../data/tarotData'
 
 export default function SpreadSelectPage({ onBack, onNext }) {
   const [selected, setSelected] = useState(null)
+  const [animating, setAnimating] = useState(false)
+
+  const handleRecommend = () => {
+    if (animating) return
+    setAnimating(true)
+    let count = 0
+    const interval = setInterval(() => {
+      setSelected(Math.floor(Math.random() * spreads.length))
+      count++
+      if (count >= 12) {
+        clearInterval(interval)
+        setAnimating(false)
+      }
+    }, 80)
+  }
 
   const handleNext = () => {
     if (selected === null) return
@@ -58,6 +73,16 @@ export default function SpreadSelectPage({ onBack, onNext }) {
           disabled={selected === null}
         >
           下一步：写下问题
+        </button>
+      </div>
+
+      <div style={{ textAlign: 'center', marginTop: 20 }}>
+        <button
+          className="btn-ghost"
+          onClick={handleRecommend}
+          disabled={animating}
+        >
+          🎲 帮我推荐
         </button>
       </div>
     </div>
