@@ -1,17 +1,43 @@
 import { useState, useEffect } from 'react'
 import { dailyCard } from '../data/tarotData'
 
-export default function WelcomePage({ onStart }) {
+export default function WelcomePage({ onStart, isMusicPlaying, onToggleMusic }) {
   const [daily, setDaily] = useState(null)
+  const [isDay, setIsDay] = useState(false)
 
   useEffect(() => {
     setDaily(dailyCard())
+    const saved = localStorage.getItem('tarot-theme') || 'night'
+    setIsDay(saved === 'day')
   }, [])
 
-  const isDay = localStorage.getItem('tarot-theme') !== 'day'
+  const toggleTheme = () => {
+    const next = isDay ? 'night' : 'day'
+    setIsDay(!isDay)
+    document.body.className = next === 'day' ? 'theme-day' : 'theme-night'
+    localStorage.setItem('tarot-theme', next)
+  }
 
   return (
     <div className="welcome-page">
+      {/* 顶部设置栏 */}
+      <div className="welcome-settings-bar">
+        <button
+          className="settings-btn"
+          onClick={toggleTheme}
+          title={isDay ? '切换夜间模式' : '切换日间模式'}
+        >
+          {isDay ? '🌙' : '☀️'}
+        </button>
+        <button
+          className="settings-btn"
+          onClick={onToggleMusic}
+          title={isMusicPlaying ? '关闭背景音乐' : '开启背景音乐'}
+        >
+          {isMusicPlaying ? '🔊' : '🔇'}
+        </button>
+      </div>
+
       <div style={{ marginBottom: 60 }}>
         <h1 className="welcome-title">钱钱的占星频道</h1>
         <p className="welcome-subtitle">78张韦特塔罗 · AI 深度解读</p>
