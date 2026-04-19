@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { dailyCard } from '../data/tarotData'
 
-export default function WelcomePage({ onStart, isMusicPlaying, onToggleMusic }) {
+export default function WelcomePage({ onStart, activeSound, onToggleSound, SOUNDS }) {
   const [daily, setDaily] = useState(null)
   const [isDay, setIsDay] = useState(false)
+  const [showSoundPanel, setShowSoundPanel] = useState(false)
 
   useEffect(() => {
     setDaily(dailyCard())
@@ -18,6 +19,8 @@ export default function WelcomePage({ onStart, isMusicPlaying, onToggleMusic }) 
     localStorage.setItem('tarot-theme', next)
   }
 
+  const soundEntries = Object.entries(SOUNDS || {})
+
   return (
     <div className="welcome-page">
       {/* 顶部设置栏 */}
@@ -29,13 +32,45 @@ export default function WelcomePage({ onStart, isMusicPlaying, onToggleMusic }) 
         >
           {isDay ? '🌙' : '☀️'}
         </button>
-        <button
-          className="settings-btn"
-          onClick={onToggleMusic}
-          title={isMusicPlaying ? '关闭背景音乐' : '开启背景音乐'}
-        >
-          {isMusicPlaying ? '🔊' : '🔇'}
-        </button>
+        <div className="sound-btn-wrapper">
+          <button
+            className="settings-btn"
+            onClick={() => setShowSoundPanel(p => !p)}
+            title="背景音效"
+          >
+            {activeSound ? SOUNDS[activeSound]?.icon : '🔇'}
+          </button>
+          {showSoundPanel && (
+            <div className="sound-panel">
+              <p className="sound-panel-title">选择背景音</p>
+              {soundEntries.map(([key, sound]) => (
+                <button
+                  key={key}
+                  className={`sound-option ${activeSound === key ? 'active' : ''}`}
+                  onClick={() => {
+                    onToggleSound(key)
+                    setShowSoundPanel(false)
+                  }}
+                >
+                  <span className="sound-option-icon">{sound.icon}</span>
+                  <span className="sound-option-name">{sound.name}</span>
+                  {activeSound === key && <span className="sound-option-playing">▶</span>}
+                </button>
+              ))}
+              {activeSound && (
+                <button
+                  className="sound-option sound-option-stop"
+                  onClick={() => {
+                    onToggleSound(activeSound)
+                    setShowSoundPanel(false)
+                  }}
+                >
+                  🔇 停止
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       <div style={{ marginBottom: 60 }}>
