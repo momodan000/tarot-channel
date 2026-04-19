@@ -1,18 +1,51 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { drawCards } from '../data/tarotData'
 
+const SHUFFLE_DURATION = 3000 // 洗牌动画3秒
+
 export default function DrawPage({ question, spread, onBack, onNext }) {
+  const [phase, setPhase] = useState('shuffle') // 'shuffle' | 'draw' | 'done'
   const [drawnCards, setDrawnCards] = useState([])
   const [flipping, setFlipping] = useState(null)
-  const [flipped, setFlipped] = useState(false)
+  const [shuffledDeck, setShuffledDeck] = useState([])
+  const shuffleTimerRef = useRef(null)
+
+  // 开始洗牌动画
+  const startShuffle = () => {
+    // 生成一副打乱的虚拟牌组用于动画
+    const fullDeck = drawCards(78)
+    setShuffledDeck(fullDeck)
+
+    // 3秒后进入抽牌阶段
+    shuffleTimerRef.current = setTimeout(() => {
+      setPhase('draw')
+    }, SHUFFLE_DURATION)
+  }
+
+  useEffect(() => {
+    startShuffle()
+    return () => {
+      if (shuffleTimerRef.current) clearTimeout(shuffleTimerRef.current)
+    }
+  }, [])
+
+  // 洗牌动画：随机切换显示的牌面
+  const [shuffleDisplay, setShuffleDisplay] = useState(0)
+  useEffect(() => {
+    if (phase !== 'shuffle') return
+    const interval = setInterval(() => {
+      setShuffleDisplay(prev => (prev + 1) % shuffledDeck.length)
+    }, 80)
+    return () => clearInterval(interval)
+  }, [phase, shuffledDeck])
 
   const handleDraw = (index) => {
     if (flipping !== null || drawnCards[index]) return
+    if (phase !== 'draw') return
 
     const cards = drawCards(spread.cardCount)
     const card = cards[0]
     setFlipping(index)
-    setFlipped(true)
 
     setTimeout(() => {
       setDrawnCards(prev => {
@@ -26,6 +59,68 @@ export default function DrawPage({ question, spread, onBack, onNext }) {
 
   const allDrawn = drawnCards.length === spread.cardCount && drawnCards.every(Boolean)
 
+  // 洗牌阶段
+  if (phase === 'shuffle') {
+    return (
+      <div className="page">
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <h2 className="page-title">洗牌中...</h2>
+          <p className="page-subtitle">
+            请集中精神，默念你的问题<br />
+            {Math.floor(SHUFFLE_DURATION / 1000)} 秒后开始抽牌
+          </p>
+        </div>
+
+        {/* 洗牌动画区 */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: 300,
+          perspective: 1000,
+        }}>
+          <div className="shuffle-card">
+            <div className={`card-front ${shuffleDisplay % 2 === 0 ? '' : 'flipped'}`}>
+              {shuffledDeck.length > 0 && (
+                <img
+                  src={shuffledDeck[shuffleDisplay % shuffledDeck.length]?.image}
+                  alt="洗牌中"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 12 }}
+                  onError={e => { e.target.style.display = 'none' }}
+                />
+              )}
+              <div style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: '40%',
+                background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
+                borderRadius: '0 0 12px 12px',
+                display: 'flex',
+                alignItems: 'flex-end',
+                justifyContent: 'center',
+                paddingBottom: 12,
+              }}>
+                <span style={{ color: '#fff', fontSize: 12, letterSpacing: 2 }}>
+                  洗 牌 中
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 进度条 */}
+        <div style={{ margin: '0 auto', maxWidth: 200, marginTop: 32 }}>
+          <div className="shuffle-progress-bar">
+            <div className="shuffle-progress-fill" />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // 抽牌阶段
   return (
     <div className="page">
       <div style={{ textAlign: 'center', marginBottom: 28 }}>
@@ -64,7 +159,6 @@ export default function DrawPage({ question, spread, onBack, onNext }) {
                   style={{
                     width: 140,
                     height: 224,
-                    transform: drawnCards[i]?.isReversed && !(flipping === i) ? 'rotate(180deg)' : undefined,
                   }}
                 >
                   <img
@@ -72,6 +166,7 @@ export default function DrawPage({ question, spread, onBack, onNext }) {
                     alt={drawnCards[i].name}
                     loading="lazy"
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    onError={e => { e.target.style.display = 'none' }}
                   />
                   <div className="card-name-badge">
                     <span style={{ color: drawnCards[i].isReversed ? 'var(--negative)' : 'inherit' }}>
