@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useAmbientAudio } from './utils/useAmbientAudio'
+import { useAmbientSounds } from './utils/useAmbientSounds'
 import WelcomePage from './components/WelcomePage'
 import SpreadSelectPage from './components/SpreadSelectPage'
 import QuestionPage from './components/QuestionPage'
@@ -15,16 +15,16 @@ export default function App() {
   const [drawnCards, setDrawnCards] = useState([])
   const [showHistory, setShowHistory] = useState(false)
   const [reading, setReading] = useState('')
-  const [isMusicPlaying, setIsMusicPlaying] = useState(false)
-  const { start: startMusic, stop: stopMusic } = useAmbientAudio()
+  const [activeSound, setActiveSound] = useState(null) // null | 'ocean' | 'rain' | 'cicada'
+  const { SOUNDS, startSound, stop } = useAmbientSounds()
 
-  const toggleMusic = () => {
-    if (isMusicPlaying) {
-      stopMusic()
-      setIsMusicPlaying(false)
+  const handleToggleSound = (soundKey) => {
+    if (activeSound === soundKey) {
+      stop()
+      setActiveSound(null)
     } else {
-      startMusic()
-      setIsMusicPlaying(true)
+      startSound(soundKey)
+      setActiveSound(soundKey)
     }
   }
 
@@ -33,7 +33,6 @@ export default function App() {
     document.body.className = saved === 'day' ? 'theme-day' : 'theme-night'
   }, [])
 
-  // 流程：欢迎 → 选牌阵 → 写问题 → 抽牌 → 解读
   const goToSpread = () => setPage('spread')
   const goToQuestion = (s) => {
     setSpread(s)
@@ -67,8 +66,9 @@ export default function App() {
       {page === 'welcome' && (
         <WelcomePage
           onStart={goToSpread}
-          isMusicPlaying={isMusicPlaying}
-          onToggleMusic={toggleMusic}
+          activeSound={activeSound}
+          onToggleSound={handleToggleSound}
+          SOUNDS={SOUNDS}
         />
       )}
       {page === 'spread' && (
