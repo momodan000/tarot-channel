@@ -187,7 +187,7 @@ export const tarotCards = [
   { id: 15, name: "恶魔", nameEn: "The Devil", suit: "major",
     keywords: ["束缚", "欲望", "成瘾", "阴影"],
     upright: "你被自己不愿承认的欲望或模式困住了。",
-    reversed: "挣脱束缚的勇气，或者把欲望合理化成"爱"。",
+    reversed: "挣脱束缚的勇气，或者把欲望合理化成「爱」。",
     image: buildWikiUrl(majorImages[15]) },
   { id: 16, name: "塔", nameEn: "The Tower", suit: "major",
     keywords: ["冲击", "觉醒", "崩塌", "解放"],
