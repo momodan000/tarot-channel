@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { useAmbientAudio } from './utils/useAmbientAudio'
 import WelcomePage from './components/WelcomePage'
 import QuestionPage from './components/QuestionPage'
 import SpreadSelectPage from './components/SpreadSelectPage'
@@ -14,6 +15,18 @@ export default function App() {
   const [drawnCards, setDrawnCards] = useState([])
   const [showHistory, setShowHistory] = useState(false)
   const [reading, setReading] = useState('')
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false)
+  const { start: startMusic, stop: stopMusic } = useAmbientAudio()
+
+  const toggleMusic = () => {
+    if (isMusicPlaying) {
+      stopMusic()
+      setIsMusicPlaying(false)
+    } else {
+      startMusic()
+      setIsMusicPlaying(true)
+    }
+  }
 
   // 读取主题
   useEffect(() => {
@@ -50,6 +63,8 @@ export default function App() {
       {page === 'welcome' && (
         <WelcomePage
           onStart={goToQuestion}
+          isMusicPlaying={isMusicPlaying}
+          onToggleMusic={toggleMusic}
         />
       )}
       {page === 'question' && (
