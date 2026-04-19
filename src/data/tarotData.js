@@ -2,7 +2,7 @@
 // 牌面图片使用 Wikipedia Commons 公版图片
 
 // Wikipedia图片URL生成器
-const WIKI_BASE = "https://upload.wikimedia.org/wikipedia/commons";
+const WIKI_BASE = ""; // 图片走 /api/image 代理
 
 // Major Arcana 图片（22张，ID 0-21）
 const majorImages = [
@@ -103,7 +103,7 @@ const minorPaths = {
 };
 
 function buildWikiUrl(path) {
-  return `${WIKI_BASE}/thumb/${path}/300px-${path.split('/').pop()}`;
+  return `/api/image?url=${encodeURIComponent("https://upload.wikimedia.org/wikipedia/commons/" + path)}`;
 }
 
 // 生成78张牌数据
