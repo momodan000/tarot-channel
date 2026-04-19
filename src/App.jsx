@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useAmbientAudio } from './utils/useAmbientAudio'
 import WelcomePage from './components/WelcomePage'
-import QuestionPage from './components/QuestionPage'
 import SpreadSelectPage from './components/SpreadSelectPage'
+import QuestionPage from './components/QuestionPage'
 import DrawPage from './components/DrawPage'
 import ReadingPage from './components/ReadingPage'
 import TopNav from './components/TopNav'
@@ -28,26 +28,30 @@ export default function App() {
     }
   }
 
-  // 读取主题
   useEffect(() => {
     const saved = localStorage.getItem('tarot-theme') || 'night'
     document.body.className = saved === 'day' ? 'theme-day' : 'theme-night'
   }, [])
 
-  const goToQuestion = () => setPage('question')
-  const goToSpreadSelect = (q) => {
-    setQuestion(q)
-    setPage('spread')
-  }
-  const goToDraw = (s) => {
+  // 流程：欢迎 → 选牌阵 → 写问题 → 抽牌 → 解读
+  const goToSpread = () => setPage('spread')
+  const goToQuestion = (s) => {
     setSpread(s)
+    setPage('question')
+  }
+  const goToDraw = (q) => {
+    setQuestion(q)
     setPage('draw')
   }
   const goToReading = (cards) => {
     setDrawnCards(cards)
     setPage('reading')
   }
-  const goHome = () => setPage('welcome')
+  const goHome = () => {
+    setPage('welcome')
+    setQuestion('')
+    setSpread(null)
+  }
 
   const openHistory = () => setShowHistory(true)
   const closeHistory = () => setShowHistory(false)
@@ -62,21 +66,21 @@ export default function App() {
 
       {page === 'welcome' && (
         <WelcomePage
-          onStart={goToQuestion}
+          onStart={goToSpread}
           isMusicPlaying={isMusicPlaying}
           onToggleMusic={toggleMusic}
         />
       )}
-      {page === 'question' && (
-        <QuestionPage
-          onBack={goHome}
-          onNext={goToSpreadSelect}
-        />
-      )}
       {page === 'spread' && (
         <SpreadSelectPage
-          question={question}
-          onBack={() => setPage('question')}
+          onBack={goHome}
+          onNext={goToQuestion}
+        />
+      )}
+      {page === 'question' && (
+        <QuestionPage
+          spread={spread}
+          onBack={() => setPage('spread')}
           onNext={goToDraw}
         />
       )}
@@ -84,7 +88,7 @@ export default function App() {
         <DrawPage
           question={question}
           spread={spread}
-          onBack={() => setPage('spread')}
+          onBack={() => setPage('question')}
           onNext={goToReading}
         />
       )}
