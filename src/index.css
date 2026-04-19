@@ -405,6 +405,39 @@ body {
   font-size: 14px;
 }
 
+/* ---- 快捷问题按钮 ---- */
+.quick-prompt-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  backdrop-filter: blur(8px);
+}
+
+.quick-prompt-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.quick-prompt-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.theme-night .quick-prompt-btn {
+  background: rgba(30, 20, 60, 0.6);
+  border-color: rgba(123, 92, 240, 0.3);
+}
+
+.theme-day .quick-prompt-btn {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(107, 91, 149, 0.3);
+}
+
 /* ---- 牌阵选择 ---- */
 .spread-grid {
   display: grid;
