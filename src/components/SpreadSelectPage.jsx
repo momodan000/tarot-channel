@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { spreads } from '../data/tarotData'
 
-export default function SpreadSelectPage({ question, onBack, onNext }) {
+export default function SpreadSelectPage({ onBack, onNext }) {
   const [selected, setSelected] = useState(null)
 
   const handleNext = () => {
@@ -13,11 +13,11 @@ export default function SpreadSelectPage({ question, onBack, onNext }) {
     <div className="page">
       <div style={{ textAlign: 'center', marginBottom: 28 }}>
         <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>
-          STEP 2 / 3
+          STEP 1 / 3
         </p>
         <h2 className="page-title">选择牌阵</h2>
         <p className="page-subtitle">
-          你的问题：{question.length > 40 ? question.slice(0, 40) + '…' : question}
+          不同问题适合不同的牌阵布局
         </p>
       </div>
 
@@ -57,7 +57,7 @@ export default function SpreadSelectPage({ question, onBack, onNext }) {
           onClick={handleNext}
           disabled={selected === null}
         >
-          开始抽牌
+          下一步：写下问题
         </button>
       </div>
     </div>
